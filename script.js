@@ -7,20 +7,68 @@ async function chargerPersonnages() {
     const personnages = await reponse.json();
 
     const premiersPersonnages = personnages;
-    afficherPersonnages(premiersPersonnages);
+    let personnagesMaison = premiersPersonnages;
+    let personnagesAffiches = premiersPersonnages;
+    const recherche = document.querySelector("#recherche");
+    recherche.disabled = false;
+
+    function actualiserListe() {
+      const nom = recherche.value.trim().toLowerCase();
+      const resultats = personnagesAffiches.filter((personnage) =>
+        (personnage.name || "").toLowerCase().includes(nom)
+      );
+      afficherPersonnages(resultats);
+    }
+
+    recherche.addEventListener("input", actualiserListe);
+    actualiserListe();
+
+    document.querySelector("#tri-az").disabled = false;
+    document.querySelector("#tri-az").addEventListener("click", () => {
+      personnagesAffiches = personnagesAffiches.sort((a, b) => (a.name || "").localeCompare(b.name || "", "fr"));
+      actualiserListe();
+    });
+
+    document.querySelector("#tri-age").disabled = false;
+    document.querySelector("#tri-age").addEventListener("click", () => {
+      personnagesAffiches = personnagesAffiches.slice().sort((a, b) => dateNaissance(b) - dateNaissance(a));
+      actualiserListe();
+    });
+
+    document.querySelector("#vivants").disabled = false;
+    document.querySelector("#morts").disabled = false;
+
+    document.querySelector("#vivants").addEventListener("click", () => {
+      personnagesAffiches = personnagesMaison.filter((personnage) => personnage.alive === true);
+      actualiserListe();
+    });
+
+    document.querySelector("#morts").addEventListener("click", () => {
+      personnagesAffiches = personnagesMaison.filter((personnage) => personnage.alive === false);
+      actualiserListe();
+    });
 
     document.querySelectorAll(".houses button").forEach((maison) => {
       maison.addEventListener("click", () => {
-        const personnagesTries = premiersPersonnages
+        personnagesMaison = premiersPersonnages
           .filter((personnage) => personnage.house === maison.id)
           .sort((a, b) => (a.name || "").localeCompare(b.name || "", "fr"));
 
-        afficherPersonnages(personnagesTries);
+        personnagesAffiches = personnagesMaison;
+        actualiserListe();
       });
     });
   } catch (erreur) {
     liste.textContent = "impossible de voir les personnages";
   }
+}
+function dateNaissance(personnage) {
+  if (personnage.dateOfBirth) {
+    const [jour, mois, annee] = personnage.dateOfBirth.split("-");
+    const date = Date.UTC(Number(annee), Number(mois) - 1, Number(jour));
+    if (!Number.isNaN(date)) return date;
+  }
+  return personnage.yearOfBirth ? Date.UTC(personnage.yearOfBirth, 0, 1) : -Infinity;
 }
 
 function afficherPersonnages(personnages) {
