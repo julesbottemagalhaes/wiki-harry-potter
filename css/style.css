@@ -107,6 +107,7 @@ footer p {
   background: rgba(185, 144, 73, 0.5);
   padding: 30px;
   flex-wrap: wrap;
+  gap: 20px;
 }
 .houses > div {
   border-radius: 140px;
@@ -130,6 +131,7 @@ footer p {
 }
 .characters > div {
   padding: 30px;
+  text-align: center;
 }
 .characters img {
   width: 150px;
